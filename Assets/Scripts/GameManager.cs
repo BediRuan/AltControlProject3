@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> wallPrefabs = new List<GameObject>();
     [SerializeField] private List<GameObject> usedWalls = new List<GameObject>();
     public GameObject currentWall = null;
+    public Transform parent;
 
     private void Awake()
     {
@@ -39,7 +40,7 @@ public class GameManager : MonoBehaviour
             availableWalls = wallPrefabs.ToList();
         }
 
-        GameObject newWall = Instantiate(availableWalls[Random.Range(0, availableWalls.Count)], newPos, Quaternion.identity);
+        GameObject newWall = Instantiate(availableWalls[Random.Range(0, availableWalls.Count)], newPos, Quaternion.identity, parent);
         usedWalls.Add(newWall);
 
         currentWall.GetComponent<Wall>().old = true;
