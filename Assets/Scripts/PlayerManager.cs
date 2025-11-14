@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
@@ -14,6 +15,8 @@ public class PlayerManager : MonoBehaviour
 
     [SerializeField] private float staminaRegenRate;
     [SerializeField] private float staminaLossRate;
+
+    public CapsuleCollider col;
 
     private void Awake()
     {
@@ -34,6 +37,8 @@ public class PlayerManager : MonoBehaviour
 
         isGrabbingLeft = false;
         isGrabbingRight = false;
+
+        col = GetComponent<CapsuleCollider>();
     }
 
     private void Update()
@@ -105,6 +110,14 @@ public class PlayerManager : MonoBehaviour
             {
                 staminaRight = maxStamina;
             }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Wall>().gameObject == GameManager.Instance.currentWall && other.GetComponent<Wall>().old == false)
+        {
+            GameManager.Instance.SpawnNewWall(GameManager.Instance.wallPrefabs[Random.Range(0, GameManager.Instance.wallPrefabs.Count)]);
         }
     }
 }

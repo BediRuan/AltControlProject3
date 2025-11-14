@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &173851785 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6144720040400200182, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
+  m_PrefabInstance: {fileID: 7481491482550413269}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,6 +398,8 @@ GameObject:
   m_Component:
   - component: {fileID: 669675028}
   - component: {fileID: 669675029}
+  - component: {fileID: 669675030}
+  - component: {fileID: 669675031}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -434,6 +441,57 @@ MonoBehaviour:
   staminaRight: 100
   staminaRegenRate: 30
   staminaLossRate: 10
+  col: {fileID: 0}
+--- !u!136 &669675030
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669675027}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &669675031
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669675027}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 1
+  m_Constraints: 120
+  m_CollisionDetection: 2
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -514,7 +572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   wallPrefabs:
   - {fileID: 6144720040400200182, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
-  currentWall: {fileID: 0}
+  currentWall: {fileID: 173851785}
 --- !u!4 &1422614135
 Transform:
   m_ObjectHideFlags: 0
@@ -652,14 +710,6 @@ PrefabInstance:
     - target: {fileID: 6144720040400200182, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
       propertyPath: m_Name
       value: Wall1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7243742730317171603, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
-      propertyPath: nextPos
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7243742730317171603, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
-      propertyPath: prevPos
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8010011284474330476, guid: 2f85b168cfdfb3040850b9f45e0b12f5, type: 3}
       propertyPath: m_LocalPosition.x
