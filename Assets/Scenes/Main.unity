@@ -547,7 +547,7 @@ MonoBehaviour:
   leftHand: {fileID: 1722964502}
   rightHand: {fileID: 1722964503}
   bodyMoveSpeed: 5
-  bodyOffsetFromHands: {x: 0, y: 0, z: 0}
+  bodyOffsetFromHands: {x: 0, y: 1, z: 0}
   col: {fileID: 669675030}
 --- !u!136 &669675030
 CapsuleCollider:
