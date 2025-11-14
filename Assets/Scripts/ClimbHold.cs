@@ -3,12 +3,12 @@ using UnityEngine;
 public class ClimbHold : MonoBehaviour
 {
     [Header("Stamina Cost")]
-    public float staminaCostMultiplier = 1f;  
+    public float staminaCostMultiplier = 1f;
 
-    
-    public bool isRestPoint = false;         
 
-  
+    public bool isRestPoint = false;
+
+
     public float gizmoRadius = 0.05f;
 
     private void OnDrawGizmos()

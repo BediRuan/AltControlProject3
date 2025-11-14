@@ -1,13 +1,18 @@
-using UnityEngine;
 using System;
-
+using UnityEngine;
 using Leap;
 //using Leap.Unity;
+
+public enum HandGripState
+{
+    Free,
+    Grabbing
+}
 
 public class HandGripDetector : MonoBehaviour
 {
     [Header("Leap Provider")]
-    public LeapServiceProvider leapProvider;   // 在 Inspector 里拖入你的 LeapServiceProvider
+    public LeapServiceProvider leapProvider;
 
     [Header("Thresholds")]
     [Range(0f, 1f)] public float grabThreshold = 0.7f;
@@ -16,26 +21,24 @@ public class HandGripDetector : MonoBehaviour
     [Header("Debug")]
     public HandGripState leftState = HandGripState.Free;
     public HandGripState rightState = HandGripState.Free;
-
     public float leftGrabStrength;
     public float rightGrabStrength;
 
-    
+ 
     public event Action OnLeftGrabStart;
     public event Action OnLeftGrabEnd;
     public event Action OnRightGrabStart;
     public event Action OnRightGrabEnd;
 
-    void Reset()
+    private void Reset()
     {
-        
         if (leapProvider == null)
         {
             leapProvider = FindObjectOfType<LeapServiceProvider>();
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (leapProvider == null) return;
 
@@ -48,43 +51,31 @@ public class HandGripDetector : MonoBehaviour
         foreach (var hand in frame.Hands)
         {
             if (hand.IsLeft) leftHand = hand;
-            else if (hand.IsRight) rightHand = hand;
+            if (hand.IsRight) rightHand = hand;
         }
 
-        // left hand
+        // L
         if (leftHand != null)
         {
             leftGrabStrength = leftHand.GrabStrength;
-            UpdateHandState(
-                isLeft: true,
-                grabStrength: leftGrabStrength,
-                ref leftState,
-                OnLeftGrabStart,
-                OnLeftGrabEnd
-            );
+            UpdateHandState(true, leftGrabStrength, ref leftState, OnLeftGrabStart, OnLeftGrabEnd);
         }
         else
         {
-            
             if (leftState == HandGripState.Grabbing)
             {
                 leftState = HandGripState.Free;
                 OnLeftGrabEnd?.Invoke();
             }
+
             leftGrabStrength = 0f;
         }
 
-        // right hand
+        // R
         if (rightHand != null)
         {
             rightGrabStrength = rightHand.GrabStrength;
-            UpdateHandState(
-                isLeft: false,
-                grabStrength: rightGrabStrength,
-                ref rightState,
-                OnRightGrabStart,
-                OnRightGrabEnd
-            );
+            UpdateHandState(false, rightGrabStrength, ref rightState, OnRightGrabStart, OnRightGrabEnd);
         }
         else
         {
@@ -93,11 +84,12 @@ public class HandGripDetector : MonoBehaviour
                 rightState = HandGripState.Free;
                 OnRightGrabEnd?.Invoke();
             }
+
             rightGrabStrength = 0f;
         }
     }
 
-    void UpdateHandState(
+    private void UpdateHandState(
         bool isLeft,
         float grabStrength,
         ref HandGripState state,
@@ -107,30 +99,20 @@ public class HandGripDetector : MonoBehaviour
         switch (state)
         {
             case HandGripState.Free:
-                // Free → Grabbing
                 if (grabStrength >= grabThreshold)
                 {
                     state = HandGripState.Grabbing;
                     grabStartEvent?.Invoke();
-                    // Debug.Log((isLeft ? "Left" : "Right") + " hand GRAB");
                 }
                 break;
 
             case HandGripState.Grabbing:
-                // Grabbing → Free
                 if (grabStrength <= releaseThreshold)
                 {
                     state = HandGripState.Free;
                     grabEndEvent?.Invoke();
-                    // Debug.Log((isLeft ? "Left" : "Right") + " hand RELEASE");
                 }
                 break;
         }
     }
-}
-
-public enum HandGripState
-{
-    Free,
-    Grabbing
 }
