@@ -117,7 +117,7 @@ public class PlayerManager : MonoBehaviour
     {
         if (other.GetComponent<Wall>().gameObject == GameManager.Instance.currentWall && other.GetComponent<Wall>().old == false)
         {
-            GameManager.Instance.SpawnNewWall(GameManager.Instance.wallPrefabs[Random.Range(0, GameManager.Instance.wallPrefabs.Count)]);
+            GameManager.Instance.SpawnNewWall();
         }
     }
 }
