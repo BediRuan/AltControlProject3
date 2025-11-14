@@ -1,22 +1,30 @@
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance { get; private set; }
 
+    
     public bool isGrabbingLeft = false;
     public bool isGrabbingRight = false;
 
+    
     public float staminaLeft = 0;
     public float staminaRight = 0;
+    public float maxStamina = 100f;
 
-    private float maxStamina = 100;
+    [SerializeField] private float staminaRegenRate = 20f; 
+    [SerializeField] private float staminaLossRate = 15f;  
 
-    [SerializeField] private float staminaRegenRate;
-    [SerializeField] private float staminaLossRate;
+    
+    public ClimbHand leftHand;
+    public ClimbHand rightHand;
 
+    
+    public float bodyMoveSpeed = 5f;                    
+    public Vector3 bodyOffsetFromHands = new Vector3(0f, -0.5f, 0f);
     public CapsuleCollider col;
+    private float initialZ;
 
     private void Awake()
     {
@@ -38,43 +46,51 @@ public class PlayerManager : MonoBehaviour
         isGrabbingLeft = false;
         isGrabbingRight = false;
 
-        col = GetComponent<CapsuleCollider>();
+        if (col == null)
+        {
+            col = GetComponent<CapsuleCollider>();
+        }
+
+        //
+        initialZ = transform.position.z;
     }
 
     private void Update()
     {
+        SyncGrabbingStateFromHands();
         HandleStamina();
+        HandleBodyMovement();
+    }
 
-        if (Input.GetKey(KeyCode.A))
+    
+    private void SyncGrabbingStateFromHands()
+    {
+        if (leftHand != null)
         {
-            isGrabbingLeft = true;
-        }
-        if (Input.GetKeyUp(KeyCode.A))
-        {
-            isGrabbingLeft = false;
+            isGrabbingLeft = leftHand.currentHold != null;
         }
 
-        if (Input.GetKey(KeyCode.D))
+        if (rightHand != null)
         {
-            isGrabbingRight = true;
-        }
-        if (Input.GetKeyUp(KeyCode.D))
-        {
-            isGrabbingRight = false;
+            isGrabbingRight = rightHand.currentHold != null;
         }
     }
 
     private void HandleStamina()
     {
+        
         if (isGrabbingLeft)
         {
-            if (staminaLeft <= maxStamina && staminaLeft > 0)
+            if (staminaLeft > 0f)
             {
                 staminaLeft -= Time.deltaTime * staminaLossRate;
+                staminaLeft = Mathf.Max(staminaLeft, 0f);
             }
-            else
+
+            
+            if (staminaLeft <= 0f && leftHand != null)
             {
-                staminaLeft = 0f;
+                leftHand.ForceReleaseFromStamina();
             }
         }
         else
@@ -82,22 +98,22 @@ public class PlayerManager : MonoBehaviour
             if (staminaLeft < maxStamina)
             {
                 staminaLeft += Time.deltaTime * staminaRegenRate;
-            }
-            else
-            {
-                staminaLeft = maxStamina;
+                staminaLeft = Mathf.Min(staminaLeft, maxStamina);
             }
         }
 
+        
         if (isGrabbingRight)
         {
-            if (staminaRight <= maxStamina && staminaRight > 0)
+            if (staminaRight > 0f)
             {
                 staminaRight -= Time.deltaTime * staminaLossRate;
+                staminaRight = Mathf.Max(staminaRight, 0f);
             }
-            else
+
+            if (staminaRight <= 0f && rightHand != null)
             {
-                staminaRight = 0f;
+                rightHand.ForceReleaseFromStamina();
             }
         }
         else
@@ -105,17 +121,54 @@ public class PlayerManager : MonoBehaviour
             if (staminaRight < maxStamina)
             {
                 staminaRight += Time.deltaTime * staminaRegenRate;
-            }
-            else
-            {
-                staminaRight = maxStamina;
+                staminaRight = Mathf.Min(staminaRight, maxStamina);
             }
         }
     }
 
+    
+    private void HandleBodyMovement()
+    {
+        int grabCount = 0;
+        Vector3 sumPos = Vector3.zero;
+
+        if (leftHand != null && leftHand.currentHold != null)
+        {
+            sumPos += leftHand.currentHold.transform.position;
+            grabCount++;
+        }
+
+        if (rightHand != null && rightHand.currentHold != null)
+        {
+            sumPos += rightHand.currentHold.transform.position;
+            grabCount++;
+        }
+
+        if (grabCount > 0)
+        {
+            Vector3 handCenter = sumPos / grabCount;
+            Vector3 targetBodyPos = handCenter + bodyOffsetFromHands;
+
+            
+
+            Vector3 newPos = Vector3.Lerp(
+                transform.position,
+                targetBodyPos,
+                bodyMoveSpeed * Time.deltaTime
+            );
+
+            
+            newPos.z = initialZ;
+
+            transform.position = newPos;
+        }
+    }
+
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Wall>().gameObject == GameManager.Instance.currentWall && other.GetComponent<Wall>().old == false)
+        Wall wall = other.GetComponent<Wall>();
+        if (wall != null && wall.gameObject == GameManager.Instance.currentWall && wall.old == false)
         {
             GameManager.Instance.SpawnNewWall();
         }
