@@ -1,9 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance { get; private set; }
-
+     [Header("World Movement")]
+    public Transform worldRoot;
+	public float worldMoveMultiplier = 3f;
     
     public bool isGrabbingLeft = false;
     public bool isGrabbingRight = false;
@@ -59,6 +61,8 @@ public class PlayerManager : MonoBehaviour
     {
         SyncGrabbingStateFromHands();
         HandleStamina();
+        // Do not move the player/body here anymore.
+        // World movement is handled by ClimbHand dragging.
         HandleBodyMovement();
     }
 
@@ -126,7 +130,6 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    
     private void HandleBodyMovement()
     {
         int grabCount = 0;
@@ -149,18 +152,33 @@ public class PlayerManager : MonoBehaviour
             Vector3 handCenter = sumPos / grabCount;
             Vector3 targetBodyPos = handCenter + bodyOffsetFromHands;
 
-            
+            // 保持角色的 z 不变（跟你原来的逻辑一致）
+            targetBodyPos.z = initialZ;
 
+            Vector3 currentPos = transform.position;
+
+            // 计算“本来应该把玩家移动到哪”的插值结果
             Vector3 newPos = Vector3.Lerp(
-                transform.position,
+                currentPos,
                 targetBodyPos,
                 bodyMoveSpeed * Time.deltaTime
             );
 
-            
-            newPos.z = initialZ;
+            // 本帧玩家本来要移动的位移
+            Vector3 delta = newPos - currentPos;
 
-            transform.position = newPos;
+			if (worldRoot != null)
+            {
+				// ✅ 不再移动玩家，而是把等量同向位移（可调倍数）加到世界上
+				worldRoot.position += delta * worldMoveMultiplier;
+                Debug.Log("Moving world by " + (delta * worldMoveMultiplier).ToString("F3"));
+                // 玩家保持在原地（currentPos），不再修改 transform.position
+            }
+            else
+            {
+                // 如果忘了设置 worldRoot，就退回老逻辑，防止直接玩崩
+                transform.position = newPos;
+            }
         }
     }
 
